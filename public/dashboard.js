@@ -1,103 +1,194 @@
-let chartInstance = null;
-let updateInterval;
+let likesChart, interactionsChart;
 
 async function connectToLive() {
-    const username = document.getElementById('usernameInput').value.trim();
-    const errorMsg = document.getElementById('errorMsg');
-    errorMsg.style.display = 'none';
+  const username = document.getElementById("usernameInput").value.trim();
+  const errorMsg = document.getElementById("errorMsg");
+  errorMsg.style.display = "none";
 
-    if (!username) {
-        errorMsg.textContent = "Please enter a username";
-        errorMsg.style.display = 'block';
-        return;
-    }
+  if (!username) {
+    errorMsg.textContent = "Please enter a username";
+    errorMsg.style.display = "block";
+    return;
+  }
 
-    try {
-        const response = await fetch('/verify-username', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username })
-        });
+  try {
+    const response = await fetch("/verify-username", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username }),
+    });
 
-        if (!response.ok) throw new Error();
+    if (!response.ok) throw new Error();
 
-        document.getElementById('usernameModal').style.display = 'none';
-        document.getElementById('dashboard').style.display = 'block';
-        startDashboardUpdates();
-    } catch (err) {
-        errorMsg.textContent = "Invalid username or stream offline";
-        errorMsg.style.display = 'block';
-    }
+    document.getElementById("usernameModal").style.display = "none";
+    document.getElementById("dashboard").style.display = "block";
+    startUpdates();
+  } catch (err) {
+    errorMsg.textContent = "Invalid username or stream offline";
+    errorMsg.style.display = "block";
+  }
 }
 
-function startDashboardUpdates() {
-    updateDashboard();
-    updateInterval = setInterval(updateDashboard, 3000);
+function startUpdates() {
+  updateDashboard();
+  setInterval(updateDashboard, 3000);
 }
 
+async function updateDashboard() {
+  updateComments();
+  updateLikesChart();
+  updateGifters();
+  updateFollowers();
+  updateInteractionsChart();
+  updateTopLikers();
+}
+
+// Update individual components
 async function updateComments() {
-    try {
-        const response = await fetch('/api/comments');
-        const comments = await response.json();
-        
-        const commentsDiv = document.getElementById('comments');
-        commentsDiv.innerHTML = comments.map(comment => `
+  try {
+    const comments = await (await fetch("/api/comments")).json();
+    document.getElementById("comments").innerHTML = comments
+      .map(
+        (c) => `
             <div class="comment">
-                <div style="margin-bottom: 8px;">
-                    <strong style="color: #2d3436;">${comment.unique_id}</strong>
-                    <span style="color: #636e72; font-size: 0.9em; margin-left: 10px;">
-                        ${new Date(comment.timestamp).toLocaleTimeString()}
-                    </span>
-                </div>
-                <p style="margin: 0; color: #2d3436;">${comment.comment}</p>
+                <strong>${c.unique_id}</strong>
+                <span style="color: #666; font-size: 0.9em;">
+                    ${new Date(c.timestamp).toLocaleTimeString()}
+                </span>
+                <p>${c.comment}</p>
             </div>
-        `).join('');
-    } catch (error) {
-        console.error('Error updating comments:', error);
-    }
+        `
+      )
+      .join("");
+  } catch {}
 }
 
 async function updateLikesChart() {
-    try {
-        const response = await fetch('/api/likes');
-        const likesData = await response.json();
-        
-        const ctx = document.getElementById('likesChart').getContext('2d');
-        
-        if (chartInstance) {
-            chartInstance.destroy();
-        }
+  try {
+    const data = await (await fetch("/api/likes")).json();
+    const ctx = document.getElementById("likesChart").getContext("2d");
 
-        chartInstance = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: likesData.map(u => u.unique_id),
-                datasets: [{
-                    label: 'Total Likes',
-                    data: likesData.map(u => u.total_likes),
-                    backgroundColor: '#ff6384',
-                    borderColor: '#ff6384',
-                    borderWidth: 1
-                }]
+    if (likesChart) likesChart.destroy();
+
+    likesChart = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: data.map((u) => u.unique_id),
+        datasets: [
+          {
+            label: "Total Likes",
+            data: data.map((u) => u.total_likes),
+            backgroundColor: "#ff6384",
+            borderWidth: 0,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true } },
+      },
+    });
+  } catch {}
+}
+
+async function updateGifters() {
+  try {
+    const gifts = await (await fetch("/api/gifts")).json();
+    document.getElementById("gifters").innerHTML = gifts
+      .map(
+        (g) => `
+            <div class="gift-item">
+                <strong>${g.unique_id}</strong>
+                <span>${g.gift_name} × ${g.total_count}</span>
+            </div>
+        `
+      )
+      .join("");
+  } catch {}
+}
+
+async function updateFollowers() {
+  try {
+    const followers = await (await fetch("/api/followers")).json();
+    document.getElementById("followers").innerHTML = followers
+      .map(
+        (f) => `
+            <div class="follower-item">
+                <strong>${f.unique_id}</strong>
+                <span>${new Date(f.timestamp).toLocaleTimeString()}</span>
+            </div>
+        `
+      )
+      .join("");
+  } catch {}
+}
+
+async function updateTopLikers() {
+  try {
+    const response = await fetch("/api/top-likers");
+    const likers = await response.json();
+
+    const formatted = likers
+      .map(
+        (liker, index) =>
+          ` ${liker.unique_id} ame👍 mara ${liker.total_likes}`
+      )
+      .join(", ");
+
+    const text = `(●'◡'●)Anayeongoza ni${formatted.replace(/,\s([^,]*)$/, " and $1")}`;
+    document.getElementById("likersText").textContent = text;
+  } catch (error) {
+    console.error("Error updating top likers:", error);
+  }
+}
+
+// Add copy function
+function copyLikersText() {
+  const text = document.getElementById("likersText").textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    alert("Copied to clipboard!");
+  });
+}
+
+async function updateInteractionsChart() {
+  try {
+    const data = await (await fetch("/api/interactions")).json();
+    const ctx = document.getElementById("interactionsChart").getContext("2d");
+
+    if (interactionsChart) interactionsChart.destroy();
+
+    interactionsChart = new Chart(ctx, {
+      type: "doughnut",
+      data: {
+        labels: data.map((u) => u.unique_id),
+        datasets: [
+          {
+            data: data.map((u) => u.total_interactions),
+            backgroundColor: ["#ff6384", "#36a2eb", "#4bc0c0"],
+            borderWidth: 2,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: "bottom" },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => ` ${ctx.label}: ${ctx.raw} interactions`,
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: { beginAtZero: true }
-                }
-            }
-        });
-    } catch (error) {
-        console.error('Error updating chart:', error);
-    }
+          },
+        },
+      },
+    });
+  } catch {}
 }
 
-function updateDashboard() {
-    updateComments();
-    updateLikesChart();
-}
-
-window.addEventListener('resize', () => {
-    if (chartInstance) chartInstance.resize();
+// Handle window resize
+window.addEventListener("resize", () => {
+  if (likesChart) likesChart.resize();
+  if (interactionsChart) interactionsChart.resize();
 });
