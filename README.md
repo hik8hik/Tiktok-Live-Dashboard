@@ -2,7 +2,7 @@
 
 A real-time analytics dashboard for TikTok live streams, featuring comment tracking, gift monitoring, follower alerts, and interactive visualizations.
 
-![Dashboard Preview](https://via.placeholder.com/800x400.png?text=TikTok+Live+Dashboard+Preview)
+![Dashboard Preview](https://placehold.co/800x400/png)
 _Add actual screenshot later_
 
 ## Features
