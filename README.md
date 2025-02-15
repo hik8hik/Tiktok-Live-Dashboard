@@ -3,7 +3,7 @@
 A real-time analytics dashboard for TikTok live streams, featuring comment tracking, gift monitoring, follower alerts, and interactive visualizations.
 
 ![Dashboard Preview](https://via.placeholder.com/800x400.png?text=TikTok+Live+Dashboard+Preview)
-*Add actual screenshot later*
+_Add actual screenshot later_
 
 ## Features
 
@@ -61,11 +61,11 @@ Log in to TikTok in your browser
 
 Open Developer Tools → Application → Cookies
 
-Copy sessionid value from <https://www.tiktok.com> optional, you can do it anonymously without copying it.
+Copy sessionid value from [https://www.tiktok.com](https://www.tiktok.com) optional, you can do it anonymously without copying it.
 Replace in app.js:
 
 ```javascript
-sessionId: 'YOUR_SESSION_ID_HERE'
+sessionId: "YOUR_SESSION_ID_HERE";
 ```
 
 Usage
@@ -77,7 +77,7 @@ node app.js
 
 node app.js
 Access Dashboard
-Open in browser: <http://localhost:3000>
+Open in browser: [http://localhost:3000](http://localhost:3000)
 
 Connect to Live Stream
 
@@ -103,15 +103,15 @@ gifts (id, user_id, unique_id, gift_id, gift_name, count, diamonds, timestamp)
 followers (id, user_id, unique_id, timestamp)
 ```
 
-|   | API EndpointsDescription | col3                  |
-| --- | -------------------------- | ----------------------- |
-|   | Endpoint                 | Description           |
-| 1 | /api/comments            | Last 50 comments      |
-| 2 | /api/likes               | Top 10 likers         |
-| 3 | /api/gifts               | Recent gifts          |
-| 4 | /api/followers           | Recent followers      |
-| 5 | /api/interactions        | Top interactive users |
-|   |                          |                       |
+|     | API Endpoints     | Descriptioncol        |
+| --- | ----------------- | --------------------- |
+|     | Endpoint          | Description           |
+| 1   | /api/comments     | Last 50 comments      |
+| 2   | /api/likes        | Top 10 likers         |
+| 3   | /api/gifts        | Recent gifts          |
+| 4   | /api/followers    | Recent followers      |
+| 5   | /api/interactions | Top interactive users |
+|     |                   |                       |
 
 Troubleshooting
 Common Issues:
