@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TikTok Live Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f0f2f5;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 3fr 2fr;
+            gap: 30px;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        #comments {
+            height: 65vh;
+            overflow-y: auto;
+            padding-right: 15px;
+        }
+
+        .comment {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #ff6384;
+        }
+
+        #likesChartContainer {
+            height: 400px;
+            position: relative;
+        }
+
+        /* Modal Styles */
+        #usernameModal {
+            display: flex;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            width: 400px;
+        }
+
+        #usernameInput {
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        #errorMsg {
+            color: red;
+            display: none;
+            margin-top: 10px;
+        }
+
+        .modal-button {
+            background: #ff6384;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div id="usernameModal">
+        <div class="modal-content">
+            <h2>Enter TikTok Username</h2>
+            <input type="text" id="usernameInput" placeholder="e.g., tiktokuser">
+            <button class="modal-button" onclick="connectToLive()">Connect</button>
+            <p id="errorMsg">Invalid username or stream offline</p>
+        </div>
+    </div>
+
+    <div id="dashboard" style="display: none;">
+        <h1 style="text-align: center; margin-bottom: 30px; color: #2d3436;">Live Stream Analytics</h1>
+        <div class="container">
+            <div class="card">
+                <h2 style="color: #2d3436; margin-bottom: 20px;">Recent Comments</h2>
+                <div id="comments"></div>
+            </div>
+            <div class="card">
+                <h2 style="color: #2d3436; margin-bottom: 20px;">Top Likers</h2>
+                <div id="likesChartContainer">
+                    <canvas id="likesChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>
