@@ -133,11 +133,11 @@ async function updateTopLikers() {
     const formatted = likers
       .map(
         (liker, index) =>
-          ` ${liker.unique_id} ame👍 mara ${liker.total_likes}`
+          ` @${liker.nickname} ame👍 mara ${liker.total_likes}`
       )
       .join(", ");
 
-    const text = `(●'◡'●)Anayeongoza ni${formatted.replace(/,\s([^,]*)$/, " and $1")}`;
+    const text = `( ͡° ͜ʖ ͡°)Kwa kulike ${formatted.replace(/,\s([^,]*)$/, " and $1")}`;
     document.getElementById("likersText").textContent = text;
   } catch (error) {
     console.error("Error updating top likers:", error);

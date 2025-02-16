@@ -31,6 +31,7 @@ db.serialize(() => {
     `CREATE TABLE IF NOT EXISTS user_likes (
         user_id TEXT PRIMARY KEY,
         unique_id TEXT NOT NULL,
+        nickname TEXT NOT NULL,
         total_likes INTEGER DEFAULT 0,
         last_updated DATETIME DEFAULT CURRENT_TIMESTAMP
     )`,
@@ -162,7 +163,7 @@ app.get("/api/interactions", (req, res) => {
 
 app.get("/api/top-likers", (req, res) => {
   db.all(
-    `SELECT unique_id, total_likes FROM user_likes ORDER BY total_likes DESC LIMIT 3`,
+    `SELECT unique_id, nickname, total_likes FROM user_likes ORDER BY total_likes DESC LIMIT 3`,
     (err, rows) => {
       if (err) return res.status(500).json([]);
       res.json(rows);
@@ -203,13 +204,17 @@ app.post("/verify-username", async (req, res) => {
     });
 
     tiktokLiveConnection.on("like", (data) => {
-      console.log(
-        `${data.uniqueId} ${data.userId} sent ${data.likeCount} likes, total likes: ${data.totalLikeCount}`
-      );
+     try {
+        console.log(
+            `${data.uniqueId} ${data.userId} ${data.nickname} sent ${data.likeCount} likes, total likes: ${data.totalLikeCount}`
+          );
+     } catch (error) {
+        console.log(error)
+     }
       db.run(
-        `INSERT INTO user_likes (user_id, unique_id, total_likes) VALUES (?, ?, ?)
+        `INSERT INTO user_likes (user_id, unique_id, nickname, total_likes) VALUES (?, ?, ?, ?)
                 ON CONFLICT(user_id) DO UPDATE SET total_likes = total_likes + excluded.total_likes`,
-        [data.userId, data.uniqueId, data.likeCount],
+        [data.userId, data.uniqueId, data.nickname, data.likeCount],
         (err) => {
           if (err) console.error("Error updating likes:", err.message);
         }
