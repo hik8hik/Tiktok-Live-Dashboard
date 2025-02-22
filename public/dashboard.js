@@ -130,6 +130,30 @@ async function updateTopLikers() {
     const response = await fetch("/api/top-likers");
     const likers = await response.json();
 
+    const formatted = likers.map(
+      (liker, index) =>
+        (document.getElementById(`likersText${index + 1}`).textContent = `@${
+          liker.nickname
+        } namba ${index + 1} ametaptap mara: ${liker.total_likes}`)
+    );
+  } catch (error) {
+    console.error("Error updating top likers:", error);
+  }
+}
+
+// Add copy function
+function copyLikersText(elementid) {
+  const text = document.getElementById(`${elementid}`).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    console.log("Copied to clipboard!");
+  });
+}
+
+/* async function updateTopLikers() {
+  try {
+    const response = await fetch("/api/top-likers");
+    const likers = await response.json();
+
     const formatted = likers
       .map(
         (liker, index) =>
@@ -139,18 +163,11 @@ async function updateTopLikers() {
 
     const text = `( ͡° ͜ʖ ͡°)Kwa kulike ${formatted.replace(/,\s([^,]*)$/, " and $1")}`;
     document.getElementById("likersText").textContent = text;
+    document.getElementById("likersText").textContent = text;
   } catch (error) {
     console.error("Error updating top likers:", error);
   }
-}
-
-// Add copy function
-function copyLikersText() {
-  const text = document.getElementById("likersText").textContent;
-  navigator.clipboard.writeText(text).then(() => {
-    alert("Copied to clipboard!");
-  });
-}
+} */
 
 async function updateInteractionsChart() {
   try {

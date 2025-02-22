@@ -163,7 +163,7 @@ app.get("/api/interactions", (req, res) => {
 
 app.get("/api/top-likers", (req, res) => {
   db.all(
-    `SELECT unique_id, nickname, total_likes FROM user_likes ORDER BY total_likes DESC LIMIT 3`,
+    `SELECT unique_id, nickname, total_likes FROM user_likes ORDER BY total_likes DESC LIMIT 10`,
     (err, rows) => {
       if (err) return res.status(500).json([]);
       res.json(rows);
