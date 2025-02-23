@@ -2,231 +2,213 @@
 <html>
   <head>
     <title>TikTok Live Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-      body {
-        margin: 0;
-        font-family: Arial;
-        background: #f0f2f5;
-      }
-      .container {
-        display: grid;
-        grid-template-columns: 3fr 2fr;
-        gap: 20px;
-        max-width: 1200px;
-        margin: 20px auto;
-        padding: 0 20px;
-      }
-      .card {
-        background: white;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      }
-      .grid-row {
-        grid-column: 1 / -1;
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 20px;
-      }
-      #comments,
-      #gifters,
-      #followers {
-        height: 300px;
-        overflow-y: auto;
-      }
-      .comment,
-      .gift-item,
-      .follower-item {
-        padding: 12px;
-        margin: 8px 0;
-        background: #f8f9fa;
-        border-radius: 8px;
-      }
-      .chart-container {
-        height: 300px;
-        position: relative;
-      }
-      #usernameModal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.8);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
-      }
-      .modal-content {
-        background: white;
-        padding: 30px;
-        border-radius: 12px;
-        text-align: center;
-        width: 400px;
-      }
-      #usernameInput {
-        width: 100%;
-        padding: 12px;
-        margin: 15px 0;
-        border: 2px solid #ddd;
-        border-radius: 6px;
-        font-size: 16px;
-      }
-      .modal-button {
-        background: #ff6384;
-        color: white;
-        border: none;
-        padding: 12px 24px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 16px;
-      }
-      #errorMsg {
-        color: red;
-        margin-top: 10px;
-        display: none;
-      }
-    </style>
   </head>
-  <body>
-    <div id="usernameModal">
-      <div class="modal-content">
-        <h2>Enter TikTok Username</h2>
-        <input type="text" id="usernameInput" placeholder="e.g., tiktokuser" />
-        <button class="modal-button" onclick="connectToLive()">Connect</button>
-        <p id="errorMsg">Invalid username or stream offline</p>
+  <body class="m-0 font-sans bg-gray-100">
+    <div
+      id="usernameModal"
+      class="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
+    >
+      <div class="bg-white p-8 rounded-xl text-center w-96">
+        <h2 class="text-2xl mb-4">Enter TikTok Username</h2>
+        <input
+          type="text"
+          id="usernameInput"
+          class="w-full px-4 py-2 mb-4 border-2 border-gray-300 rounded-lg"
+          placeholder="e.g., tiktokuser"
+        />
+        <button
+          class="bg-pink-500 text-white px-6 py-2 rounded-lg hover:bg-pink-600 transition-colors"
+          onclick="connectToLive()"
+        >
+          Connect
+        </button>
+        <p id="errorMsg" class="text-red-500 mt-2 hidden">
+          Invalid username or stream offline
+        </p>
       </div>
     </div>
 
-    <div id="dashboard" style="display: none">
-      <h1 style="text-align: center; margin: 20px 0 30px; color: #2d3436">
+    <div id="dashboard" class="hidden">
+      <h1 class="text-3xl text-center my-8 text-gray-800 font-bold">
         Live Stream Analytics
       </h1>
 
-      <div class="container">
-        <!-- Left Column -->
-        <div class="card">
-          <h2>Recent Comments</h2>
-          <div id="comments"></div>
-          <!-- copy likers -->
-          <div class="card">
-            <h2>Top 3 Likers (Copy Format)</h2>
-            <div
-              id="copyLikers"
-              style="
-                background: #f8f9fa;
-                padding: 15px;
-                border-radius: 8px;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                flex-wrap: wrap;
-              "
-            >
-              <h6
-                id="likersText1"
-                style="margin: 0; white-space: pre-wrap;"
-              ></h6>
+      <div class="max-w-6xl mx-auto px-4 space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-[3fr_2fr] gap-6">
+          <!-- Left Column -->
+          <div class="space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-md">
+              <h2 class="text-xl font-semibold mb-4">Recent Comments</h2>
               <div
-                onclick="copyLikersText('likersText1')"
-                style="background-color: lightblue; cursor:copy;"
-              >
-                <h6>copy</h6>
-              </div>
-              <h6 id="likersText2" style="margin: 0; white-space: pre-wrap"></h6>
-              <div
-                onclick="copyLikersText('likersText2')"
-                style="background-color: lightblue; cursor:copy;"
-              >
-                <h6>copy</h6>
-              </div>
-              <h6 id="likersText3" style="margin: 0; white-space: pre-wrap"></h6>
-              <div
-                onclick="copyLikersText('likersText3')"
-                style="background-color: lightblue; cursor:copy;"
-              >
-                <h6>copy</h6>
-              </div>
-              <h6 id="likersText4" style="margin: 0; white-space: pre-wrap"></h6>
-              <div
-                onclick="copyLikersText('likersText4')"
-                style="background-color: lightblue; cursor:copy;"
-              >
-                <h6>copy</h6>
-              </div>
-              <h6 id="likersText5" style="margin: 0; white-space: pre-wrap"></h6>
-              <div
-                onclick="copyLikersText('likersText5')"
-                style="background-color: lightblue; cursor:copy;"
-              >
-                <h6>copy</h6>
-              </div>
-              <h6 id="likersText6" style="margin: 0; white-space: pre-wrap"></h6>
-              <div
-                onclick="copyLikersText('likersText6')"
-                style="background-color: lightblue; cursor:copy;"
-              >
-                <h6>copy</h6>
-              </div>
-              <h6 id="likersText7" style="margin: 0; white-space: pre-wrap"></h6>
-              <div
-                onclick="copyLikersText('likersText7')"
-                style="background-color: lightblue; cursor:copy;"
-              >
-                <h6>copy</h6>
-              </div>
-              <h6 id="likersText8" style="margin: 0; white-space: pre-wrap"></h6>
-              <div
-                onclick="copyLikersText('likersText8')"
-                style="background-color: lightblue; cursor:copy;"
-              >
-                <h6>copy</h6>
-              </div>
-              <h6 id="likersText9" style="margin: 0; white-space: pre-wrap"></h6>
-              <div
-                onclick="copyLikersText('likersText9')"
-                style="background-color: lightblue; cursor:copy;"
-              >
-                <h6>copy</h6>
-              </div>
-              <h6 id="likersText10" style="margin: 0; white-space: pre-wrap"></h6>
-              <div
-                onclick="copyLikersText('likersText10')"
-                style="background-color: lightblue; cursor:copy;"
-              >
-                <h6>copy</h6>
-              </div>
+                id="comments"
+                class="h-[300px] overflow-y-auto space-y-2"
+              ></div>
             </div>
-          </div>
-        </div>
 
-        <!-- Right Column -->
-        <div style="display: flex; flex-direction: column; gap: 20px">
-          <div class="card">
-            <h2>Top Likers</h2>
-            <div class="chart-container">
-              <canvas id="likesChart"></canvas>
+            <div class="bg-white p-6 rounded-xl shadow-md">
+              <h2 class="text-xl font-semibold mb-4">
+                Top Likers (Copy Format)
+              </h2>
+              <div id="copyLikers" class="flex flex-wrap gap-3">
+                <!-- Repeat for each liker -->
+                <div class="flex items-center gap-2 bg-gray-50 p-2 rounded-lg">
+                  <h6
+                    id="likersText1"
+                    class="m-0 whitespace-pre-wrap text-sm"
+                  ></h6>
+                  <button
+                    onclick="copyLikersText('likersText1')"
+                    class="bg-blue-100 px-2 py-1 rounded text-sm hover:bg-blue-200 transition-colors"
+                  >
+                    Copy
+                  </button>
+                </div>
+                <div class="flex items-center gap-2 bg-gray-50 p-2 rounded-lg">
+                  <h6
+                    id="likersText2"
+                    class="m-0 whitespace-pre-wrap text-sm"
+                  ></h6>
+                  <button
+                    onclick="copyLikersText('likersText2')"
+                    class="bg-blue-100 px-2 py-1 rounded text-sm hover:bg-blue-200 transition-colors"
+                  >
+                    Copy
+                  </button>
+                </div>
+                <div class="flex items-center gap-2 bg-gray-50 p-2 rounded-lg">
+                  <h6
+                    id="likersText3"
+                    class="m-0 whitespace-pre-wrap text-sm"
+                  ></h6>
+                  <button
+                    onclick="copyLikersText('likersText3')"
+                    class="bg-blue-100 px-2 py-1 rounded text-sm hover:bg-blue-200 transition-colors"
+                  >
+                    Copy
+                  </button>
+                </div>
+                <div class="flex items-center gap-2 bg-gray-50 p-2 rounded-lg">
+                  <h6
+                    id="likersText4"
+                    class="m-0 whitespace-pre-wrap text-sm"
+                  ></h6>
+                  <button
+                    onclick="copyLikersText('likersText4')"
+                    class="bg-blue-100 px-2 py-1 rounded text-sm hover:bg-blue-200 transition-colors"
+                  >
+                    Copy
+                  </button>
+                </div>
+                <div class="flex items-center gap-2 bg-gray-50 p-2 rounded-lg">
+                  <h6
+                    id="likersText5"
+                    class="m-0 whitespace-pre-wrap text-sm"
+                  ></h6>
+                  <button
+                    onclick="copyLikersText('likersText5')"
+                    class="bg-blue-100 px-2 py-1 rounded text-sm hover:bg-blue-200 transition-colors"
+                  >
+                    Copy
+                  </button>
+                </div>
+                <div class="flex items-center gap-2 bg-gray-50 p-2 rounded-lg">
+                  <h6
+                    id="likersText6"
+                    class="m-0 whitespace-pre-wrap text-sm"
+                  ></h6>
+                  <button
+                    onclick="copyLikersText('likersText6')"
+                    class="bg-blue-100 px-2 py-1 rounded text-sm hover:bg-blue-200 transition-colors"
+                  >
+                    Copy
+                  </button>
+                </div>
+                <div class="flex items-center gap-2 bg-gray-50 p-2 rounded-lg">
+                  <h6
+                    id="likersText7"
+                    class="m-0 whitespace-pre-wrap text-sm"
+                  ></h6>
+                  <button
+                    onclick="copyLikersText('likersText7')"
+                    class="bg-blue-100 px-2 py-1 rounded text-sm hover:bg-blue-200 transition-colors"
+                  >
+                    Copy
+                  </button>
+                </div>
+                <div class="flex items-center gap-2 bg-gray-50 p-2 rounded-lg">
+                  <h6
+                    id="likersText8"
+                    class="m-0 whitespace-pre-wrap text-sm"
+                  ></h6>
+                  <button
+                    onclick="copyLikersText('likersText8')"
+                    class="bg-blue-100 px-2 py-1 rounded text-sm hover:bg-blue-200 transition-colors"
+                  >
+                    Copy
+                  </button>
+                </div>
+                <div class="flex items-center gap-2 bg-gray-50 p-2 rounded-lg">
+                  <h6
+                    id="likersText9"
+                    class="m-0 whitespace-pre-wrap text-sm"
+                  ></h6>
+                  <button
+                    onclick="copyLikersText('likersText9')"
+                    class="bg-blue-100 px-2 py-1 rounded text-sm hover:bg-blue-200 transition-colors"
+                  >
+                    Copy
+                  </button>
+                </div>
+                <div class="flex items-center gap-2 bg-gray-50 p-2 rounded-lg">
+                  <h6
+                    id="likersText10"
+                    class="m-0 whitespace-pre-wrap text-sm"
+                  ></h6>
+                  <button
+                    onclick="copyLikersText('likersText10')"
+                    class="bg-blue-100 px-2 py-1 rounded text-sm hover:bg-blue-200 transition-colors"
+                  >
+                    Copy
+                  </button>
+                </div>
+                <!-- Repeat similar structure for other likersText elements -->
+              </div>
             </div>
           </div>
-          <div class="card">
-            <h2>Top Interactive Users</h2>
-            <div class="chart-container">
-              <canvas id="interactionsChart"></canvas>
+
+          <!-- Right Column -->
+          <div class="space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-md">
+              <h2 class="text-xl font-semibold mb-4">Top Likers</h2>
+              <div class="h-[300px] relative">
+                <canvas id="likesChart"></canvas>
+              </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-md">
+              <h2 class="text-xl font-semibold mb-4">Top Interactive Users</h2>
+              <div class="h-[300px] relative">
+                <canvas id="interactionsChart"></canvas>
+              </div>
             </div>
           </div>
         </div>
 
         <!-- Bottom Row -->
-        <div class="grid-row">
-          <div class="card">
-            <h2>Recent Gifters</h2>
-            <div id="gifters"></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-white p-6 rounded-xl shadow-md">
+            <h2 class="text-xl font-semibold mb-4">Recent Gifters</h2>
+            <div id="gifters" class="h-[300px] overflow-y-auto space-y-2"></div>
           </div>
-          <div class="card">
-            <h2>Recent Followers</h2>
-            <div id="followers"></div>
+
+          <div class="bg-white p-6 rounded-xl shadow-md">
+            <h2 class="text-xl font-semibold mb-4">Recent Followers</h2>
+            <div
+              id="followers"
+              class="h-[300px] overflow-y-auto space-y-2"
+            ></div>
           </div>
         </div>
       </div>
